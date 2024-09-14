@@ -3,8 +3,8 @@ from pyrogram.types import Message
 import asyncio
 from config import CHANNEL_ID
 
-api_id = "20668090"#сюда свой апи ид
-api_hash = "19dc666390d73b98aae44b77d4d8d25c"#а сюда апи хеш
+api_id = "9139417"
+api_hash = "d32b6fbbf46b371a8f38925867403394"
 
 app = Client('bot', api_id=api_id, api_hash=api_hash)
 
@@ -12,11 +12,11 @@ async def send_bet(username, summa, bet_type) -> int:
     await app.start()
 
     message_text = (
-        "**[<emoji id=5282939632416206153>⛈</emoji>] Новая ставка!\n\n"
-        f"> <emoji id=5258011929993026890>👤</emoji> Никнейм игрока: {username}\n\n"
-        f"> <emoji id=5443038326535759644>💬</emoji> Игрок ставит на: {bet_type}\n\n"
-        f"> <emoji id=5375296873982604963>💰</emoji> Сумма ставки: {summa}$**"
-    )
+"**<b><emoji id=5260416304224936047>✅</emoji>Новая ставка! Удачи!✔️</b>\n\n"
+f"><emoji id=5819154994967874788>🧑‍💻</emoji>Никнейм игрока: {username}\n\n"
+f"><emoji id=5472030678633684592>💸</emoji>Сумма ставки: {summa}$\n\n"
+f"><emoji id=5260535596941582167>💬</emoji>Ставка на: {bet_type}**"
+)
 
     try:
         message: Message = await app.send_message(
@@ -31,7 +31,7 @@ async def send_bet(username, summa, bet_type) -> int:
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(send_bet('testusername', 100, 'больше'))
+        loop.run_until_complete(send_bet('тест', 10, 'больше'))
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
